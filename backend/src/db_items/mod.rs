@@ -1,4 +1,4 @@
-use crate::{routes::query_items::QueryItem, CErr, ServerPool};
+use crate::{routes::QueryItem, CErr, ServerPool};
 use serde::Serialize;
 use sqlx::mysql::MySqlRow;
 use std::fmt::Debug;
@@ -130,8 +130,6 @@ pub trait DbItem:
                 sqlx::query_as::<_, Self>(&format!("SELECT * FROM {}", Self::table_name()))
                     .fetch_all(sql_conn)
                     .await?;
-
-            tide::log::info!("{:?}", query_result);
 
             let res_vec = Self::convert_vector(query_result).map_err(|e| {
                 tide::Error::from_str(tide::StatusCode::InternalServerError, e.to_string())

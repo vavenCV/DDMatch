@@ -35,6 +35,8 @@ custom_error = "1.9.2"
 reqwest = { version = "0.12.12", features = ["blocking", "json"] }
 dotenv = "0.15.0"
 
+common = { version = "0.1.0", path = "../common" }
+
 [dependencies.uuid]
 version = "1.11.0"
 features = [

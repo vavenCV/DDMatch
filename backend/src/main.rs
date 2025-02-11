@@ -1,5 +1,5 @@
 use routes::menu_item_routes::{DelQueryFromId, GetQuery, GetQueryFromName, GetQueryList, PostQuery};
-use routes::query_items::DragodindeQuery;
+use common::query::DragodindeQuery;
 use sqlx::MySql;
 use sqlx::Pool;
 use dotenv::dotenv;
@@ -55,8 +55,9 @@ fn set_server_routes(server: &mut tide::Server<ServerState>) {
 
     server.at("/pgc/:id").get(|req: ServerRequest| async move {
         let id: u64 = req.param("id")?.parse()?;
-        let _ = combinaisons::calculate_probabilities_by_color(&req.state().sql_conn, id).await;
-        Ok::<_, tide::Error>("pgc")
+        let res = combinaisons::calculate_probabilities_by_color(&req.state().sql_conn, id).await;
+        Ok(tide::Response::from(serde_json::to_string(&res)?))
+        // Ok::<_, tide::Error>("pgc")
 
         // let color = <couleur_finale::CouleurFinale as db_items::DbItem>::get_self_from_id(&req.state().sql_conn, id).await?;
         // Ok(combinaisons::calculate_PGC(color).to_string())

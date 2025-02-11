@@ -5,7 +5,7 @@ use crate::{
     ServerRequest, ServerState,
 };
 
-use super::query_items::QueryItem;
+use super::QueryItem;
 
 pub trait PostQuery {
     fn add_post_route<V>(server: &mut Server<ServerState>)
@@ -28,11 +28,15 @@ pub trait PostQuery {
                     .await
                     .map_err(|e| tide::Error::from_str(500, e.to_string()))?;
 
-                let result_item = Self::get_item_from_id(sql_conn, db_item.get_id())
-                    .await
-                    .map_err(|e| tide::Error::from_str(500, e.to_string()))?;
-                
-                Ok(tide::Response::from(format!("{:?}", result_item)))
+                // let result_item = Self::get_item_from_id(sql_conn, db_item.get_id())
+                //     .await
+                //     .map_err(|e| tide::Error::from_str(500, e.to_string()))?;
+
+                Ok(tide::Response::from(serde_json::to_string(
+                    &common::query::PostReturn {
+                        id: db_item.get_id(),
+                    },
+                )?))
             });
     }
 }

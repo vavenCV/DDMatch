@@ -100,8 +100,8 @@ pub fn proba_couleurs<'a>(sql_conn: &'a ServerPool, dd_id: u64, wpg: &'a mut Vec
         let color = dd.couleur_finale_id;
         *weight_by_color.entry(color).or_insert(0) += current_weight;
 
-        println!("dd_id: {:?}", dd_id);
-        println!("weight_by_color: {:?}", weight_by_color);
+        // println!("dd_id: {:?}", dd_id);
+        // println!("weight_by_color: {:?}", weight_by_color);
 
         let pere_id = match dd.parent_pere_id {
             Some(id) => id,
@@ -115,15 +115,15 @@ pub fn proba_couleurs<'a>(sql_conn: &'a ServerPool, dd_id: u64, wpg: &'a mut Vec
         let (total_weight_pere, weight_by_color_pere) = proba_couleurs(sql_conn, pere_id, &mut wpg.clone()).await.unwrap_or_else(|_| (0, HashMap::new()));
         let (total_weight_mere, weight_by_color_mere) = proba_couleurs(sql_conn, mere_id, &mut wpg.clone()).await.unwrap_or_else(|_| (0, HashMap::new()));
         
-        println!("weight_by_color_pere: {:?}", weight_by_color_pere);
-        println!("weight_by_color_mere: {:?}", weight_by_color_pere);
+        // println!("weight_by_color_pere: {:?}", weight_by_color_pere);
+        // println!("weight_by_color_mere: {:?}", weight_by_color_pere);
 
         combine_maps(&mut weight_by_color, &weight_by_color_pere);
         combine_maps(&mut weight_by_color, &weight_by_color_mere);
 
         let total_weight = total_weight_pere + total_weight_mere + current_weight;
 
-        println!("dd_id: {:?}, weight_by_color after: {:?}", dd_id, weight_by_color);
+        // println!("dd_id: {:?}, weight_by_color after: {:?}", dd_id, weight_by_color);
 
         Ok((total_weight, weight_by_color))
     })
@@ -141,7 +141,7 @@ pub async fn calculate_probabilities_by_color(sql_conn: &ServerPool, dd_id: u64)
         res.insert(*color, *weight as f32 / total_weight as f32);
     }
 
-    println!("res: {:?}", res);
+    // println!("res: {:?}", res);
 
     res
 }

@@ -431,6 +431,7 @@ dependencies = [
  "async-std",
  "bigdecimal",
  "chrono",
+ "common",
  "custom_error",
  "dotenv",
  "maplit",
@@ -697,6 +698,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "12f8e7987cbd042a63249497f41aed09f8e65add917ea6566effbc56578d6801"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

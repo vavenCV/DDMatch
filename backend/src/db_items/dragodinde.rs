@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{routes::query_items::DragodindeQuery, CErr, ServerPool};
+use common::query::DragodindeQuery;
+
+use crate::{CErr, ServerPool};
 
 use super::{DbItem, DbItemQuery};
 
@@ -118,7 +120,7 @@ impl DbItemQuery<DragodindeQuery> for Dragodinde {
             description: query.description,
             genre_id: query.genre,
             couleur_finale_id: query.couleur_finale_id,
-            parent_pere_id: query.parent_mere_id,
+            parent_pere_id: query.parent_pere_id,
             parent_mere_id: query.parent_mere_id,
             gestation_nb: query.gestation_nb.map_or(5, |f| f),
             capacite_nb: query.capacity_ids.len() as u16,
