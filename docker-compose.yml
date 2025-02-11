@@ -1,0 +1,31 @@
+services:
+    database:
+        image: 'docker.io/mariadb:10.3'
+        container_name: database
+        restart: always
+        environment:
+          - MYSQL_USER=user
+          - MYSQL_PASSWORD=mypassword
+          - MYSQL_DATABASE=my_database
+          - MYSQL_ROOT_PASSWORD=rootpassword
+        ports:
+          - '3306:3306'
+  # mariadb:
+  #   image: lscr.io/linuxserver/mariadb:latest
+  #   container_name: mariadb
+  #   environment:
+  #     - PUID=0
+  #     - PGID=0
+  #     - TZ=Etc/UTC
+  #     - MYSQL_ROOT_PASSWORD=maria
+  #     - MYSQL_DATABASE=maria #optional
+  #     - MYSQL_USER=maria #optional
+  #     - MYSQL_PASSWORD=maria #optional
+  #     # - REMOTE_SQL=http://URL1/your.sql,https://URL2/your.sql #optional
+  #   # volumes:
+  #   #   - ./db/config:/config
+  #   ports:
+  #     - 3306:3306
+  #   restart: unless-stopped
+
+    
