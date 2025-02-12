@@ -28,7 +28,7 @@ mod main_tests {
     use crate::{
         db_items::{
             couleur::CouleurBase,
-            couleur_finale::CouleurFinale,
+            couleur_finale::{color_str_from_u64, CouleurFinale},
             dragodinde::{Dragodinde, DragodindeReturn},
             DbItem,
         },
@@ -61,11 +61,11 @@ mod main_tests {
             .filter(|c| {
                 match c2 {
                     Some(c2_asked) => {
-                        c.couleur_1_id == c1.to_id() && c.couleur_2_id == Some(c2_asked.to_id())
-                            || c.couleur_1_id == c2_asked.to_id()
-                                && c.couleur_2_id == Some(c1.to_id())
+                        (c.couleur_1_id == c1.to_id() && c.couleur_2_id == Some(c2_asked.to_id()))
+                            || (c.couleur_1_id == c2_asked.to_id()
+                                && c.couleur_2_id == Some(c1.to_id()))
                     }
-                    None => c.couleur_1_id == c1.to_id() && c.couleur_2_id == None,
+                    None => c.couleur_1_id == c1.to_id() && c.couleur_2_id == Some(0),
                 }
             })
             .collect::<Vec<CouleurFinale>>();
@@ -119,7 +119,7 @@ mod main_tests {
             .id
     }
 
-    fn create_dd(client: &Client) {
+    fn create_dd_couple(client: &Client) -> (u64, u64){
         let dd_grand_papa = create_one_dd(
             client,
             "grand_papa",
@@ -144,15 +144,53 @@ mod main_tests {
             (Some(dd_grand_papa), Some(dd_grande_maman)),
         );
 
-        let dd_papa = create_one_dd(client, "papa", 0, (CouleurBase::DOREE, None), (None, None));
+        let dd_papa = create_one_dd(client, "papa", 0, (CouleurBase::INDIGO, None), (None, None));
 
         let dd_moi = create_one_dd(
             client,
             "moi",
             0,
-            (CouleurBase::AMANDE, Some(CouleurBase::DOREE)),
+            (CouleurBase::AMANDE, Some(CouleurBase::INDIGO)),
             (Some(dd_papa), Some(dd_maman)),
         );
+
+        let dd_papa_elle = create_one_dd(
+            client,
+            "papa_elle",
+            0,
+            (CouleurBase::AMANDE, None),
+            (None, None),
+        );
+
+        let dd_maman_elle = create_one_dd(
+            client,
+            "maman_elle",
+            1,
+            (CouleurBase::IVOIRE, None),
+            (None, None),
+        );
+
+        let dd_elle = create_one_dd(
+            client,
+            "elle",
+            1,
+            (CouleurBase::AMANDE, Some(CouleurBase::IVOIRE)),
+            (Some(dd_papa_elle), Some(dd_maman_elle)),
+        );
+        (dd_moi, dd_elle)
+    }
+
+    fn get_pgc_for_dd(client: &Client, id: u64) -> HashMap<u64, f32> {
+        client
+            .get(format!("{SERVER_URL}/pgc/{}", id))
+            .send()
+            .unwrap()
+            .json::<HashMap<u64, f32>>()
+            .unwrap().iter().map(|p| (color_str_from_u64(*p.0), *p.1)).collect()
+    }
+
+    fn pgcs_to_str(pgc: HashMap<u64, f32>) -> HashMap<String, f32> {
+        pgc.iter().map(|p| (color_str_from_u64(*p.0), *p.1)).collect()
     }
 
     fn get_all_dragodindes(client: &Client) -> Vec<DragodindeReturn> {
@@ -180,20 +218,10 @@ mod main_tests {
     fn test_1() {
         let client = setup_test();
 
-        create_dd(&client);
+        let (m_id, f_id) = create_dd_couple(&client);
+        let (pgc_m, pgc_f) = (get_pgc_for_dd(&client, m_id), get_pgc_for_dd(&client, f_id));
+        let (pgc_m_str, pgc_f_str) = (pgcs_to_str(pgc_m), pgcs_to_str(pgc_f));
 
-        let dds = get_all_dragodindes(&client);
-
-        for dd in dds {
-            let pgc = client
-                .get(format!("{SERVER_URL}/pgc/{}", dd.id))
-                .send()
-                .unwrap()
-                .json::<HashMap<u64, f32>>()
-                .unwrap();
-            println!("dd: {:?}", dd);
-            println!("pgc: {:?}", pgc);
-            println!("-----------------");
-        }
+        
     }
 }
