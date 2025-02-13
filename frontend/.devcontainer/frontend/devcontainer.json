@@ -1,0 +1,24 @@
+{
+  "name": "Frontend Dragodinde",
+  "build": {
+    "dockerfile": "Containerfile"
+  },
+  "remoteUser": "root",
+  "mounts": [
+    "type=bind,src=${localWorkspaceFolder},target=/root/frontend"
+  ],
+  "workspaceFolder": "/root/frontend",
+  // "containerEnv": {
+  //   "BUILD_MODE": "AUDIT",
+  //   "CYGAL_ROOT": "/root/ouroboros/cygal",
+  //   "TOOLS_ROOT": "/root/ouroboros/tools"
+  // },
+  // "initializeCommand": "cd ${localWorkspaceFolder} && mkdir -p out/cygal_audit/klocwork/armv8/cache && ln -sfn out_audit/klocwork/.kwlp .kwlp && ln -sfn out_audit/klocwork/.kwps .kwps && ln -sf out_audit/klocwork/buildspec.out buildspec.out",
+  // "customizations": {
+  //   "vscode": {
+  //     "extensions": [
+  //       "${containerWorkspaceFolder}/.devcontainer/klocwork/kwvscodeextension.vsix"
+  //     ]
+  //   }
+  // }
+}
