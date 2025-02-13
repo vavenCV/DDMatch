@@ -1,17 +1,16 @@
 use tide::Server;
 
 use crate::{
-    db_items::{DbItem, DbItemQuery, DbItemRemove, DbItemSearchByName},
-    ServerRequest, ServerState,
+    db_items::{DbItem, DbItemQuery, DbItemRemove, DbItemSearchByName}, query_items::QueryItem, ServerRequest, ServerState
 };
 
-use super::QueryItem;
+use super::body_items::QueryBody;
 
 pub trait PostQuery {
     fn add_post_route<V>(server: &mut Server<ServerState>)
     where
-        Self: DbItemQuery<V>,
-        V: QueryItem,
+        Self: DbItemQuery<V> + QueryItem,
+        V: QueryBody,
     {
         server
             .at(&Self::query_name())
@@ -44,7 +43,7 @@ pub trait PostQuery {
 pub trait GetQueryList {
     fn add_get_list_route(server: &mut Server<ServerState>)
     where
-        Self: DbItem,
+        Self: DbItem + QueryItem,
     {
         server.at(&Self::query_name()).get(|req: ServerRequest| async move {
             Self::get_all_items(&req.state().sql_conn).await
@@ -55,7 +54,7 @@ pub trait GetQueryList {
 pub trait GetQuery {
     fn add_get_route(server: &mut Server<ServerState>)
     where
-        Self: DbItem,
+        Self: DbItem + QueryItem,
     {
         server
             .at(&format!("{}/:id", &Self::query_name()))
@@ -69,7 +68,7 @@ pub trait GetQuery {
 pub trait GetQueryFromName {
     fn add_get_route_from_name(server: &mut Server<ServerState>)
     where
-        Self: DbItemSearchByName,
+        Self: DbItemSearchByName + QueryItem,
     {
         server
             .at(&format!("{}/search_by_name/:name", &Self::query_name()))
@@ -83,7 +82,7 @@ pub trait GetQueryFromName {
 pub trait DelQueryFromId {
     fn add_del_route_from_id(server: &mut Server<ServerState>)
     where
-        Self: DbItemRemove,
+        Self: DbItemRemove + QueryItem,
     {
         server.at(&format!("{}/:id", &Self::query_name())).delete(
             |req: ServerRequest| async move {

@@ -1,11 +1,9 @@
-use crate::{routes::QueryItem, CErr, ServerPool};
+use crate::{routes::body_items::QueryBody, ServerPool};
+use common::CErr;
 use serde::Serialize;
 use sqlx::mysql::MySqlRow;
 use std::fmt::Debug;
 
-// pub mod category;
-pub mod couleur;
-pub mod couleur_finale;
 pub mod dragodinde;
 #[macro_use]
 pub mod insert_query;
@@ -14,9 +12,6 @@ pub trait DbItem:
 {
     /// Returns table name
     fn table_name() -> String;
-
-    /// Returns query name
-    fn query_name() -> String;
 
     /// Returns the item from specified `id` if it exists
     ///
@@ -243,7 +238,7 @@ pub trait DbItemSearchByPrice: DbItem {
 
 pub trait DbItemQuery<T>: DbItem
 where
-    T: QueryItem,
+    T: QueryBody,
 {
     /// Creates item from a query by adding a random uuid
     ///

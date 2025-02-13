@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-use common::query::DragodindeQuery;
+use common::{query::DragodindeQuery, CErr};
 
-use crate::{CErr, ServerPool};
+use crate::{combinaisons::calculate_probabilities_by_color, query_items::QueryItem, ServerPool};
 
 use super::{DbItem, DbItemQuery};
 
@@ -21,7 +21,7 @@ pub struct Dragodinde {
     capacite_2_id: Option<u64>,
     capacite_3_id: Option<u64>,
     capacite_4_id: Option<u64>,
-    proba_couleur: String,
+    pub proba_couleur: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Default)]
@@ -37,12 +37,14 @@ pub struct DragodindeReturn {
     pub capacity_ids: Vec::<u64>,
 }
 
-impl DbItem for Dragodinde {
-    fn table_name() -> String {
+impl QueryItem for Dragodinde {
+    fn query_name() -> String {
         "dragodinde".to_string()
     }
+}
 
-    fn query_name() -> String {
+impl DbItem for Dragodinde {
+    fn table_name() -> String {
         "dragodinde".to_string()
     }
     
@@ -105,6 +107,15 @@ impl DbItem for Dragodinde {
         .execute(sql_conn)
         .await;
 
+        let proba_by_color = calculate_probabilities_by_color(sql_conn, self.id).await;
+
+        let result = sqlx::query(
+            "UPDATE dragodinde
+            SET proba_couleur = ?
+            WHERE id = ?",
+        ).bind(&serde_json::to_string(&proba_by_color)?)
+        .bind(&self.id).execute(sql_conn).await;
+
         self.handle_insert_res(result)
     }
 }
@@ -134,12 +145,13 @@ impl DbItemQuery<DragodindeQuery> for Dragodinde {
 }
 
 
+
 impl super::DbItemSearchByName for Dragodinde {}
 
-impl crate::routes::menu_item_routes::PostQuery for Dragodinde {}
-impl crate::routes::menu_item_routes::GetQueryList for Dragodinde {}
-impl crate::routes::menu_item_routes::GetQuery for Dragodinde {}
-impl crate::routes::menu_item_routes::GetQueryFromName for Dragodinde {}
+impl crate::routes::route_traits::PostQuery for Dragodinde {}
+impl crate::routes::route_traits::GetQueryList for Dragodinde {}
+impl crate::routes::route_traits::GetQuery for Dragodinde {}
+impl crate::routes::route_traits::GetQueryFromName for Dragodinde {}
 
 impl super::DbItemRemove for Dragodinde {}
-impl crate::routes::menu_item_routes::DelQueryFromId for Dragodinde {}
+impl crate::routes::route_traits::DelQueryFromId for Dragodinde {}
